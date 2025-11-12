@@ -1,0 +1,120 @@
+:root {
+  --bg: #f6f6f6;
+  --card: #ffffff;
+  --text: #111111;
+  --muted: #6b7280;
+  --primary: #0a84ff;
+  --primary-pressed: #0066cc;
+  --border: #e5e7eb;
+  --shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  --radius: 16px;
+}
+
+/* Telegram theme adaptation (dark) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1113;
+    --card: #15181c;
+    --text: #e5e7eb;
+    --muted: #9aa3af;
+    --border: #21262c;
+    --shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+  display: grid;
+  place-items: start center;
+}
+
+.container {
+  width: 100%;
+  max-width: 560px;
+  padding: 20px 16px 32px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.header {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 16px;
+  padding: 18px;
+  margin: 8px 0 16px;
+  align-items: center;
+}
+
+.logo {
+  width: 60px; height: 60px;
+  display: grid; place-items: center;
+  font-size: 28px;
+  border-radius: 50%;
+  background: rgba(10,132,255,0.12);
+}
+
+.actions {
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.btn {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+  border: 1.5px solid var(--border);
+  padding: 14px 16px;
+  font-weight: 600;
+  transition: transform 0.06s ease, background 0.2s ease, border 0.2s ease;
+  text-align: center;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn.primary:active { background: var(--primary-pressed); }
+
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  margin: 10px 0 14px;
+}
+
+.foot { padding: 10px 6px; text-align: center; }
+.muted { color: var(--muted); }
+
+/* Modal (password gate) */
+.modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: grid; place-items: center;
+  padding: 20px;
+  z-index: 50;
+}
+.modal-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+.error { color: #e11d48; margin-top: 6px; font-weight: 600; }
+.hidden { display: none; }
