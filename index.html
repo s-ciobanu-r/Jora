@@ -4,39 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Jora Assistant</title>
-
-    <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
     <style>
-      :root {
-        --bg: #f6f6f6;
-        --card: #ffffff;
-        --text: #111;
-        --primary: #0a84ff;
-      }
       body {
-        background: var(--bg);
-        color: var(--text);
+        margin: 0;
         font-family: system-ui, sans-serif;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 100vh;
-        margin: 0;
+        min-height: 100vh;
+        background: #f6f6f6;
       }
-      h1 {
-        font-size: 22px;
-        text-align: center;
-      }
-      p {
-        color: #555;
-        text-align: center;
-        margin-bottom: 24px;
-      }
+      h1 { font-size: 22px; margin-bottom: 8px; text-align: center; }
+      p  { color: #444; text-align: center; margin-bottom: 24px; }
       button {
-        display: block;
         width: 240px;
         margin: 8px 0;
         padding: 12px 20px;
@@ -45,19 +27,17 @@
         border: none;
         border-radius: 10px;
         color: #fff;
-        background: var(--primary);
+        background: #0a84ff;
         cursor: pointer;
         transition: background 0.2s ease;
       }
-      button:hover {
-        background: #0066cc;
-      }
+      button:hover { background: #0066cc; }
     </style>
   </head>
 
   <body>
     <h1>👋 Bun venit la Jora Assistant</h1>
-    <p>Vrei să reiei sesiunea sau să alegi altceva?</p>
+    <p id="sessionText">Vrei să reiei sesiunea sau să alegi altceva?</p>
 
     <button id="resume">🔷 Reia sesiunea</button>
     <button id="new">🆕 Contract nou</button>
@@ -65,22 +45,50 @@
     <button id="qa">💬 Întrebări & răspunsuri</button>
 
     <script>
-      // Initialize Telegram WebApp
       const tg = window.Telegram.WebApp;
       tg.expand();
 
-      // helper to send action back to the bot
+      const sessionEl = document.getElementById("sessionText");
+
+      // 1️⃣ Read possible session title from URL params
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionTitle = urlParams.get("session_title");
+
+      // 2️⃣ Or optionally fetch from your n8n webhook
+      async function fetchSession() {
+        if (sessionTitle) return sessionTitle; // already provided via URL
+        try {
+          // Example: call your n8n webhook to get latest session
+          const resp = await fetch(
+            "https://n8n.yourdomain.com/webhook/get-session?telegram_id=" +
+              (tg.initDataUnsafe?.user?.id || "")
+          );
+          const data = await resp.json();
+          return data.session_title; // expects { "session_title": "creare contract nr 2025-43" }
+        } catch (e) {
+          console.warn("fetch session failed", e);
+          return null;
+        }
+      }
+
+      // 3️⃣ Render dynamic text
+      (async () => {
+        const title = await fetchSession();
+        if (title) {
+          sessionEl.textContent = `Vrei să reiei sesiunea „${title}” sau să alegi altceva?`;
+        }
+      })();
+
+      // 4️⃣ sendData bridge
       function sendAction(action) {
         try {
           tg.sendData(action);
-        } catch (err) {
-          console.error("sendData failed", err);
-          alert("Would send: " + action); // fallback for browser testing
+        } catch (e) {
+          alert("Would send: " + action); // for browser testing
         }
         tg.close();
       }
 
-      // attach handlers
       document.getElementById("resume").onclick = () => sendAction("resume_session");
       document.getElementById("new").onclick = () => sendAction("new_contract");
       document.getElementById("edit").onclick = () => sendAction("edit_contract");
