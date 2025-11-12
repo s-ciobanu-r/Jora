@@ -2,48 +2,89 @@
 <html lang="ro">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Jora Assistant</title>
+
+    <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
     <style>
-      body {
-        font-family: system-ui, sans-serif;
-        text-align: center;
-        background: #f6f6f6;
-        margin: 0;
-        padding: 40px;
+      :root {
+        --bg: #f6f6f6;
+        --card: #ffffff;
+        --text: #111;
+        --primary: #0a84ff;
       }
-      h1 { font-size: 22px; margin-bottom: 10px; }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+      }
+      h1 {
+        font-size: 22px;
+        text-align: center;
+      }
+      p {
+        color: #555;
+        text-align: center;
+        margin-bottom: 24px;
+      }
       button {
         display: block;
-        margin: 12px auto;
-        padding: 12px 24px;
-        border-radius: 8px;
-        border: none;
-        background: #007aff;
-        color: white;
+        width: 240px;
+        margin: 8px 0;
+        padding: 12px 20px;
         font-size: 16px;
-        width: 80%;
-        max-width: 300px;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        color: #fff;
+        background: var(--primary);
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+      button:hover {
+        background: #0066cc;
       }
     </style>
   </head>
+
   <body>
     <h1>👋 Bun venit la Jora Assistant</h1>
     <p>Vrei să reiei sesiunea sau să alegi altceva?</p>
 
-    <button onclick="choose('resume_session')">🔹 Reia sesiunea</button>
-    <button onclick="choose('new_contract')">🆕 Contract nou</button>
-    <button onclick="choose('edit_contract')">✏️ Editare contract</button>
-    <button onclick="choose('qa')">💬 Întrebări & răspunsuri</button>
+    <button id="resume">🔷 Reia sesiunea</button>
+    <button id="new">🆕 Contract nou</button>
+    <button id="edit">✏️ Editare contract</button>
+    <button id="qa">💬 Întrebări & răspunsuri</button>
 
     <script>
+      // Initialize Telegram WebApp
       const tg = window.Telegram.WebApp;
-      tg.expand(); // open fullscreen in Telegram
+      tg.expand();
 
-      function choose(option) {
-        tg.sendData(option); // send option back to bot
-        tg.close();          // close webapp after selection
+      // helper to send action back to the bot
+      function sendAction(action) {
+        try {
+          tg.sendData(action);
+        } catch (err) {
+          console.error("sendData failed", err);
+          alert("Would send: " + action); // fallback for browser testing
+        }
+        tg.close();
       }
+
+      // attach handlers
+      document.getElementById("resume").onclick = () => sendAction("resume_session");
+      document.getElementById("new").onclick = () => sendAction("new_contract");
+      document.getElementById("edit").onclick = () => sendAction("edit_contract");
+      document.getElementById("qa").onclick = () => sendAction("qa");
     </script>
   </body>
 </html>
