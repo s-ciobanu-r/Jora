@@ -1,98 +1,124 @@
 <!DOCTYPE html>
 <html lang="ro">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Jora Assistant</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-      body {
-        margin: 0;
-        font-family: system-ui, sans-serif;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        background: #f6f6f6;
-      }
-      h1 { font-size: 22px; margin-bottom: 8px; text-align: center; }
-      p  { color: #444; text-align: center; margin-bottom: 24px; }
-      button {
-        width: 240px;
-        margin: 8px 0;
-        padding: 12px 20px;
-        font-size: 16px;
-        font-weight: 600;
-        border: none;
-        border-radius: 10px;
-        color: #fff;
-        background: #0a84ff;
-        cursor: pointer;
-        transition: background 0.2s ease;
-      }
-      button:hover { background: #0066cc; }
-    </style>
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <title>Jora Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <body>
-    <h1>👋 Bun venit la Jora Assistant</h1>
-    <p id="sessionText">Vrei să reiei sesiunea sau să alegi altceva?</p>
+  <style>
+    body { font-family: system-ui, sans-serif; background:#f2f2f2; padding:40px; }
+    .box {
+      background:white; padding:24px; max-width:380px; margin:auto;
+      border-radius:14px; box-shadow:0 8px 20px rgba(0,0,0,0.08);
+    }
+    h2 { margin-top:0; }
+    input, button {
+      width:100%; padding:12px; margin-top:10px; border-radius:10px;
+      border:1px solid #ccc; font-size:16px;
+    }
+    button {
+      background:#0a84ff; color:white; font-weight:600; border:none;
+    }
+    #error { color:#d00; margin-top:10px; display:none; }
+    .hidden { display:none; }
+  </style>
+</head>
 
-    <button id="resume">🔷 Reia sesiunea</button>
-    <button id="new">🆕 Contract nou</button>
-    <button id="edit">✏️ Editare contract</button>
-    <button id="qa">💬 Întrebări & răspunsuri</button>
+<body>
 
-    <script>
-      const tg = window.Telegram.WebApp;
-      tg.expand();
+<!-- LOGIN PANEL -->
+<div class="box" id="loginBox">
+  <h2>Autentificare</h2>
+  <input id="username" placeholder="Nume utilizator" />
+  <input id="password" type="password" placeholder="Parola" />
+  <button onclick="doLogin()">Intră în cont</button>
+  <p id="error">Date incorecte</p>
+</div>
 
-      const sessionEl = document.getElementById("sessionText");
+<!-- SESSION BANNER PANEL -->
+<div class="box hidden" id="bannerBox">
+  <h2>Bine ai revenit!</h2>
+  <p id="bannerText">Se încarcă datele…</p>
 
-      // 1️⃣ Read possible session title from URL params
-      const urlParams = new URLSearchParams(window.location.search);
-      const sessionTitle = urlParams.get("session_title");
+  <button id="resumeBtn" class="hidden"></button>
 
-      // 2️⃣ Or optionally fetch from your n8n webhook
-      async function fetchSession() {
-        if (sessionTitle) return sessionTitle; // already provided via URL
-        try {
-          // Example: call your n8n webhook to get latest session
-          const resp = await fetch(
-            "https://n8n.yourdomain.com/webhook/get-session?telegram_id=" +
-              (tg.initDataUnsafe?.user?.id || "")
-          );
-          const data = await resp.json();
-          return data.session_title; // expects { "session_title": "creare contract nr 2025-43" }
-        } catch (e) {
-          console.warn("fetch session failed", e);
-          return null;
-        }
-      }
+  <button onclick="newContract()">🆕 Contract nou</button>
+  <button onclick="editContract()">✏️ Editare contract</button>
+  <button onclick="qa()">💬 Q&A</button>
+</div>
 
-      // 3️⃣ Render dynamic text
-      (async () => {
-        const title = await fetchSession();
-        if (title) {
-          sessionEl.textContent = `Vrei să reiei sesiunea „${title}” sau să alegi altceva?`;
-        }
-      })();
 
-      // 4️⃣ sendData bridge
-      function sendAction(action) {
-        try {
-          tg.sendData(action);
-        } catch (e) {
-          alert("Would send: " + action); // for browser testing
-        }
-        tg.close();
-      }
+<script>
+// ------------ CONFIG -------------------
+const LOGIN_URL = "https://YOUR_N8N_DOMAIN/webhook/jora-login";
+const SESSION_URL = "https://YOUR_N8N_DOMAIN/webhook/jora-get-session";
+const BOT_USERNAME = "YourTelegramBotUsername"; // EX: JoraAssistantBot
+// ---------------------------------------
 
-      document.getElementById("resume").onclick = () => sendAction("resume_session");
-      document.getElementById("new").onclick = () => sendAction("new_contract");
-      document.getElementById("edit").onclick = () => sendAction("edit_contract");
-      document.getElementById("qa").onclick = () => sendAction("qa");
-    </script>
-  </body>
+let telegramId = null;
+
+// STEP 1 — LOGIN
+async function doLogin() {
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  const response = await fetch(LOGIN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password })
+  }).then(r => r.json());
+
+  if (!response.success) {
+    document.getElementById("error").style.display = "block";
+    return;
+  }
+
+  telegramId = response.telegram_id;
+
+  document.getElementById("loginBox").classList.add("hidden");
+  document.getElementById("bannerBox").classList.remove("hidden");
+
+  loadSession();
+}
+
+// STEP 2 — LOAD SESSION BANNER
+async function loadSession() {
+  const res = await fetch(`${SESSION_URL}?telegram_id=${telegramId}`)
+    .then(r => r.json());
+
+  const text = document.getElementById("bannerText");
+  const resumeBtn = document.getElementById("resumeBtn");
+
+  if (!res.can_resume) {
+    text.textContent = "Ce vrei să faci?";
+    return;
+  }
+
+  // Build dynamic session title
+  text.textContent = `Vrei să reiei sesiunea „${res.session_title}”?`;
+
+  // Configure resume button
+  resumeBtn.classList.remove("hidden");
+  resumeBtn.textContent = "🔷 Continuă sesiunea";
+
+  const payload = `${res.resume_intent}_${res.contract_number || ""}`;
+
+  resumeBtn.onclick = () => {
+    window.location.href = `https://t.me/${BOT_USERNAME}?start=${payload}`;
+  };
+}
+
+// STEP 3 — Redirect actions
+function newContract() {
+  window.location.href = `https://t.me/${BOT_USERNAME}?start=new_contract`;
+}
+function editContract() {
+  window.location.href = `https://t.me/${BOT_USERNAME}?start=edit_contract`;
+}
+function qa() {
+  window.location.href = `https://t.me/${BOT_USERNAME}?start=qa`;
+}
+</script>
+
+</body>
 </html>
