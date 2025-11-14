@@ -2,123 +2,422 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8" />
-  <title>Jora Assistant</title>
+  <title>Jora Assistant – Hypermode</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
   <style>
-    body { font-family: system-ui, sans-serif; background:#f2f2f2; padding:40px; }
+    /* ============================================================
+       ⚡ JORA HYPERMODE UI — HYPERCAR LUXURY EDITION ⚡
+       ============================================================ */
+
+    :root {
+      --bg: #020203;
+      --fg: #ffffff;
+      --fg-soft: #c3c7cf;
+      --gold: #e4c77a;
+      --gold-deep: #b39238;
+      --accent-glow: rgba(228,199,122,0.5);
+      --glass: rgba(10,10,12,0.82);
+      --border: rgba(255,255,255,0.08);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      background-image:
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 8px),
+        radial-gradient(ellipse at top, rgba(255,255,255,0.07), transparent 60%),
+        radial-gradient(ellipse at bottom, rgba(255,255,255,0.05), transparent 60%);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      padding: 28px 16px;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      color: var(--fg);
+    }
+
+    /* Ambient gold glow */
+    #ambientLight {
+      position: fixed;
+      width: 120vw;
+      height: 180vh;
+      background: radial-gradient(circle, rgba(228,199,122,0.16), transparent 70%);
+      top: -35%;
+      left: -10%;
+      filter: blur(80px);
+      z-index: 0;
+      opacity: 0.35;
+      animation: breathe 5s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    @keyframes breathe {
+      from { opacity: 0.25; }
+      to   { opacity: 0.45; }
+    }
+
+    .frame {
+      position: relative;
+      width: 100%;
+      max-width: 390px;
+      z-index: 1;
+    }
+
+    /* Glowing Jora emblem */
+    .emblem {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      margin: 0 auto 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 30% 30%, #ffffff, transparent 55%),
+        radial-gradient(circle at 70% 80%, var(--gold), transparent 60%);
+      position: relative;
+      box-shadow:
+        0 0 30px rgba(0,0,0,0.9),
+        0 0 24px var(--accent-glow);
+      overflow: hidden;
+    }
+
+    .emblem-inner {
+      width: 80%;
+      height: 80%;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle, rgba(0,0,0,0.75), rgba(0,0,0,1));
+      color: var(--gold);
+      font-weight: 800;
+      font-size: 22px;
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px rgba(0,0,0,0.8);
+    }
+
+    /* Main hyperglass panel */
     .box {
-      background:white; padding:24px; max-width:380px; margin:auto;
-      border-radius:14px; box-shadow:0 8px 20px rgba(0,0,0,0.08);
+      width: 100%;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      backdrop-filter: blur(22px) saturate(180%);
+      box-shadow:
+        0 0 50px rgba(0,0,0,0.85),
+        0 0 25px rgba(0,0,0,0.6),
+        inset 0 0 30px rgba(255,255,255,0.03);
+      transform-style: preserve-3d;
+      animation: fadeInHyper 0.5s ease forwards;
     }
-    h2 { margin-top:0; }
-    input, button {
-      width:100%; padding:12px; margin-top:10px; border-radius:10px;
-      border:1px solid #ccc; font-size:16px;
+
+    @keyframes fadeInHyper {
+      from { opacity: 0; transform: translateY(24px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
+
+    h2 {
+      margin-top: 0;
+      font-size: 26px;
+      text-align: center;
+      letter-spacing: 0.5px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-deep), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: var(--fg-soft);
+      margin-bottom: 18px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      margin-top: 12px;
+      background: #09090b;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.14);
+      font-size: 16px;
+      color: var(--fg);
+      box-shadow:
+        inset 0 0 8px rgba(0,0,0,0.6),
+        0 0 10px rgba(0,0,0,0.3);
+      transition: all 0.18s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow:
+        0 0 10px var(--accent-glow),
+        inset 0 0 14px rgba(255,255,255,0.05);
+    }
+
+    input::placeholder {
+      color: var(--fg-soft);
+    }
+
     button {
-      background:#0a84ff; color:white; font-weight:600; border:none;
+      width: 100%;
+      padding: 15px;
+      margin-top: 14px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-deep));
+      font-size: 17px;
+      font-weight: 700;
+      color: #111;
+      box-shadow:
+        0 0 14px var(--accent-glow),
+        0 8px 22px rgba(0,0,0,0.8);
+      transform: translateY(0);
+      transition: transform 0.12s ease, box-shadow 0.2s ease, filter 0.2s ease;
+      cursor: pointer;
     }
-    #error { color:#d00; margin-top:10px; display:none; }
-    .hidden { display:none; }
+
+    button:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.02);
+      box-shadow:
+        0 0 18px var(--accent-glow),
+        0 10px 26px rgba(0,0,0,0.95);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow:
+        0 0 10px var(--accent-glow),
+        0 6px 18px rgba(0,0,0,0.7);
+    }
+
+    button.secondary {
+      background: rgba(255,255,255,0.06);
+      color: var(--fg);
+      box-shadow:
+        0 4px 14px rgba(0,0,0,0.6),
+        inset 0 0 10px rgba(255,255,255,0.04);
+    }
+
+    button.secondary:hover {
+      background: rgba(255,255,255,0.12);
+    }
+
+    #bannerText {
+      font-size: 15px;
+      text-align: center;
+      color: var(--fg-soft);
+      margin-bottom: 10px;
+    }
+
+    #error {
+      color: #ff4d4d;
+      font-weight: 600;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .hidden { display: none !important; }
+
+    .footer-note {
+      margin-top: 10px;
+      font-size: 11px;
+      text-align: center;
+      color: rgba(255,255,255,0.45);
+    }
+
+    @media (min-width: 768px) {
+      body {
+        padding: 40px 24px;
+      }
+    }
   </style>
 </head>
 
 <body>
 
-<!-- LOGIN PANEL -->
-<div class="box" id="loginBox">
-  <h2>Autentificare</h2>
-  <input id="username" placeholder="Nume utilizator" />
-  <input id="password" type="password" placeholder="Parola" />
-  <button onclick="doLogin()">Intră în cont</button>
-  <p id="error">Date incorecte</p>
-</div>
+  <!-- Ambient golden glow -->
+  <div id="ambientLight"></div>
 
-<!-- SESSION BANNER PANEL -->
-<div class="box hidden" id="bannerBox">
-  <h2>Bine ai revenit!</h2>
-  <p id="bannerText">Se încarcă datele…</p>
+  <div class="frame">
 
-  <button id="resumeBtn" class="hidden"></button>
+    <!-- Jora emblem -->
+    <div class="emblem">
+      <div class="emblem-inner">J</div>
+    </div>
 
-  <button onclick="newContract()">🆕 Contract nou</button>
-  <button onclick="editContract()">✏️ Editare contract</button>
-  <button onclick="qa()">💬 Q&A</button>
-</div>
+    <!-- LOGIN PANEL -->
+    <div class="box" id="loginBox">
+      <h2>Jora Access</h2>
+      <div class="subtitle">Autentificare pentru panoul tău dedicat</div>
 
+      <input id="username" placeholder="Nume utilizator" />
+      <input id="password" type="password" placeholder="Parolă" />
+      <button id="loginBtn">Intră în Jora</button>
+      <div id="error" class="hidden">Date incorecte. Încearcă din nou.</div>
+    </div>
 
-<script>
-// ------------ CONFIG -------------------
-const LOGIN_URL = "https://YOUR_N8N_DOMAIN/webhook/jora-login";
-const SESSION_URL = "https://YOUR_N8N_DOMAIN/webhook/jora-get-session";
-const BOT_USERNAME = "YourTelegramBotUsername"; // EX: JoraAssistantBot
-// ---------------------------------------
+    <!-- SESSION BANNER PANEL -->
+    <div class="box hidden" id="bannerBox">
+      <h2>Jora Session</h2>
+      <div class="subtitle">Continuă exact de unde ai rămas</div>
 
-let telegramId = null;
+      <p id="bannerText">Se încarcă sesiunea…</p>
 
-// STEP 1 — LOGIN
-async function doLogin() {
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value.trim();
+      <button id="resumeBtn" class="hidden">🔷 Continuă sesiunea</button>
 
-  const response = await fetch(LOGIN_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password })
-  }).then(r => r.json());
+      <button class="secondary" id="newBtn">🆕 Contract nou</button>
+      <button class="secondary" id="editBtn">✏️ Editare contract</button>
+      <button class="secondary" id="qaBtn">💬 Q&A</button>
 
-  if (!response.success) {
-    document.getElementById("error").style.display = "block";
-    return;
-  }
+      <div class="footer-note">
+        Conectat prin Jora · flux asistat AI · securizat end-to-end
+      </div>
+    </div>
 
-  telegramId = response.telegram_id;
+  </div>
 
-  document.getElementById("loginBox").classList.add("hidden");
-  document.getElementById("bannerBox").classList.remove("hidden");
+  <script>
+    // ----------------- CONFIG (EDIT THESE) -----------------
+    const LOGIN_URL   = "https://YOUR_N8N_DOMAIN/webhook/jora-login";
+    const SESSION_URL = "https://YOUR_N8N_DOMAIN/webhook/jora-get-session";
+    const BOT_USERNAME = "YourTelegramBotUsername"; // ex: JoraAssistantBot
+    // -------------------------------------------------------
 
-  loadSession();
-}
+    let telegramId = null;
 
-// STEP 2 — LOAD SESSION BANNER
-async function loadSession() {
-  const res = await fetch(`${SESSION_URL}?telegram_id=${telegramId}`)
-    .then(r => r.json());
+    const loginBox   = document.getElementById("loginBox");
+    const bannerBox  = document.getElementById("bannerBox");
+    const errorEl    = document.getElementById("error");
+    const bannerText = document.getElementById("bannerText");
+    const resumeBtn  = document.getElementById("resumeBtn");
 
-  const text = document.getElementById("bannerText");
-  const resumeBtn = document.getElementById("resumeBtn");
+    const loginBtn   = document.getElementById("loginBtn");
+    const newBtn     = document.getElementById("newBtn");
+    const editBtn    = document.getElementById("editBtn");
+    const qaBtn      = document.getElementById("qaBtn");
 
-  if (!res.can_resume) {
-    text.textContent = "Ce vrei să faci?";
-    return;
-  }
+    async function doLogin() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      errorEl.classList.add("hidden");
 
-  // Build dynamic session title
-  text.textContent = `Vrei să reiei sesiunea „${res.session_title}”?`;
+      if (!username || !password) {
+        errorEl.textContent = "Completează utilizator și parolă.";
+        errorEl.classList.remove("hidden");
+        return;
+      }
 
-  // Configure resume button
-  resumeBtn.classList.remove("hidden");
-  resumeBtn.textContent = "🔷 Continuă sesiunea";
+      try {
+        const resp = await fetch(LOGIN_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await resp.json();
 
-  const payload = `${res.resume_intent}_${res.contract_number || ""}`;
+        if (!data.success) {
+          errorEl.textContent = "Date incorecte. Încearcă din nou.";
+          errorEl.classList.remove("hidden");
+          return;
+        }
 
-  resumeBtn.onclick = () => {
-    window.location.href = `https://t.me/${BOT_USERNAME}?start=${payload}`;
-  };
-}
+        // success
+        telegramId = data.telegram_id;
+        loginBox.classList.add("hidden");
+        bannerBox.classList.remove("hidden");
+        loadSession();
+      } catch (err) {
+        console.error(err);
+        errorEl.textContent = "Eroare de conexiune.";
+        errorEl.classList.remove("hidden");
+      }
+    }
 
-// STEP 3 — Redirect actions
-function newContract() {
-  window.location.href = `https://t.me/${BOT_USERNAME}?start=new_contract`;
-}
-function editContract() {
-  window.location.href = `https://t.me/${BOT_USERNAME}?start=edit_contract`;
-}
-function qa() {
-  window.location.href = `https://t.me/${BOT_USERNAME}?start=qa`;
-}
-</script>
+    async function loadSession() {
+      bannerText.textContent = "Se încarcă sesiunea…";
 
+      try {
+        const resp = await fetch(`${SESSION_URL}?telegram_id=${telegramId}`);
+        const data = await resp.json();
+
+        if (!data.can_resume) {
+          bannerText.textContent = "Ce vrei să faci astăzi cu Jora?";
+          resumeBtn.classList.add("hidden");
+          return;
+        }
+
+        bannerText.textContent = `Vrei să reiei sesiunea „${data.session_title}”?`;
+
+        const payload = `${data.resume_intent}_${data.contract_number || ""}`;
+
+        resumeBtn.classList.remove("hidden");
+        resumeBtn.onclick = () => {
+          window.location.href = `https://t.me/${BOT_USERNAME}?start=${payload}`;
+        };
+
+      } catch (err) {
+        console.error(err);
+        bannerText.textContent = "Nu am putut încărca sesiunea. Încearcă din Telegram.";
+      }
+    }
+
+    // Action redirects
+    function newContract() {
+      window.location.href = `https://t.me/${BOT_USERNAME}?start=new_contract`;
+    }
+    function editContract() {
+      window.location.href = `https://t.me/${BOT_USERNAME}?start=edit_contract`;
+    }
+    function qa() {
+      window.location.href = `https://t.me/${BOT_USERNAME}?start=qa`;
+    }
+
+    // Attach handlers
+    loginBtn.addEventListener("click", doLogin);
+    newBtn.addEventListener("click", newContract);
+    editBtn.addEventListener("click", editContract);
+    qaBtn.addEventListener("click", qa);
+
+    // Enter key submits login
+    document.getElementById("password").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") doLogin();
+    });
+
+    // HYPERMODE: subtle parallax on mobile-ish
+    const box = document.querySelector(".box");
+    let tiltEnabled = true;
+
+    document.addEventListener("mousemove", (e) => {
+      if (!tiltEnabled) return;
+      if (window.innerWidth > 900) return; // mainly for phone / small tablets
+      const x = (window.innerWidth / 2 - e.clientX) / 40;
+      const y = (window.innerHeight / 2 - e.clientY) / 40;
+      box.style.transform = `translateY(0) rotateX(${y}deg) rotateY(${x}deg)`;
+    });
+
+    // Premium tap feedback (click sound)
+    function attachTapSound(btn) {
+      btn.addEventListener("click", () => {
+        try {
+          const clickSound = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-modern-button-click-1121.mp3");
+          clickSound.volume = 0.15;
+          clickSound.play().catch(() => {});
+        } catch {}
+      });
+    }
+
+    [loginBtn, newBtn, editBtn, qaBtn, resumeBtn].forEach(b => attachTapSound(b));
+  </script>
 </body>
 </html>
